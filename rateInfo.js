@@ -1,5 +1,3 @@
-
-
 var Twit = require('twit')
 
 var T = new Twit({
@@ -13,8 +11,22 @@ var T = new Twit({
 /*T.get('application/rate_limit_status', function(err, data, response) {
   console.log(JSON.stringify(data, null, 2))
 })*/
-T.get('friends/list', {screen_name: 'Voilou01'}, function(err, data, response){
-	console.log(JSON.stringify(data, null, 2))
+
+// Si il n'y a pas de relation entre les 2 utilisateurs il en crée une de la source vers la target
+T.get('friendships/show', {source_screen_name: 'Voilou01', target_screen_name: 'LeParisienTV'}, function(err, data, response){
+	if(!data.relationship.source.following){
+		//console.log(JSON.stringify(data, null, 2))
+		console.log(JSON.stringify(data, null, 2))
+		T.post('friendships/create', {screen_name: 'LeParisienTV'}, function(err, data, response){
+			if(err){
+				console.log(handleError(err))
+			}else{
+				console.log(' L\'utilisateur LeParisienTV a été ajouté à vos amis!')
+			}
+		})
+	}else{
+		console.log('l\'utilisateur est déjà dans vos amis')
+	}
 })
 /*
 T.get('statuses/mentions_timeline', {count: 20}, function(err, data, response){
