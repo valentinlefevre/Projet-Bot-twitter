@@ -7,40 +7,7 @@ var T = new Twit({
   , access_token_secret:  'L0EvqRCx2kzczdzqMSi5WWy1QfrNHIJRHuNSYRKG4S8Aj'
 });
 
-// affiche le dernier tweet reçu
-/*
-T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){
-		if(err){
-			console.log(handleError(err))
-		}else{
-			console.log(JSON.stringify(data, null, 2))
-		}
-})
-*/
-
-// affiche les limites de requêtes exécutables
-/*T.get('application/rate_limit_status', function(err, data, response) {
-  console.log(JSON.stringify(data, null, 2))
-})*/
-/*
-// Si il n'y a pas de relation entre les 2 utilisateurs il en crée une de la source vers la target
-T.get('friendships/show', {source_screen_name: 'Voilou01', target_screen_name: 'LeParisienTV'}, function(err, data, response){
-	if(!data.relationship.source.following){
-		//console.log(JSON.stringify(data, null, 2))
-		console.log(JSON.stringify(data, null, 2))
-		T.post('friendships/create', {screen_name: 'LeParisienTV'}, function(err, data, response){
-			if(err){
-				console.log(handleError(err))
-			}else{
-				console.log(' L\'utilisateur LeParisienTV a été ajouté à vos amis!')
-			}
-		})
-	}else{
-		console.log('l\'utilisateur est déjà dans vos amis')
-	}
-})
-*/
-
+console.log('Initialisation Bot twitter')
 
 setInterval(function(){
 	T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){
@@ -63,15 +30,7 @@ setInterval(function(){
 				console.log('Twit n°'+i)
 				console.log(parameters)
 				
-				T.post('statuses/update', parameters, function(err, data, response) {
-					if(err){
-						console.log('Erreur dans statuses/update')
-						console.log(handleError(err))
-					}else{
-						console.log('Tweet posté');
-						//console.log(data)
-					}
-				})
+				postStatusesUpdate(parameters);
 				
 				T.get('friendships/show', {source_screen_name: 'Voilou01', target_screen_name: data[i].user.screen_name}, function(err, data, response){
 					if(err){
@@ -81,14 +40,7 @@ setInterval(function(){
 						if(!data.relationship.source.following){
 							//console.log(JSON.stringify(data, null, 2))
 							console.log(JSON.stringify(data, null, 2))
-							T.post('friendships/create', {screen_name: data[i].user.screen_name}, function(err, data, response){
-								if(err){
-									console.log('Erreur dans friendships/create')
-									console.log(handleError(err))
-								}else{
-									console.log(' L\'utilisateur '+data[i].user.screen_name+' a été ajouté à vos amis!')
-								}
-							})
+							postFriendshipsCreate(data[i].user.screen_name);
 						}else{
 							//console.log(JSON.stringify(data, null, 2))
 							console.log('l\'utilisateur '+destinataire+' est déjà dans vos amis')
@@ -101,3 +53,25 @@ setInterval(function(){
 	})
 }, 120000);
 
+function postFriendshipsCreate(screenName){
+	T.post('friendships/create', {screen_name: screenName}, function(err, data, response){
+		if(err){
+			console.log('Erreur dans friendships/create')
+			console.log(handleError(err))
+		}else{
+			console.log(' L\'utilisateur '+screenName+' a été ajouté à vos amis!')
+		}
+	})
+}
+
+function postStatusesUpdate(parameters){
+	T.post('statuses/update', parameters, function(err, data, response) {
+		if(err){
+			console.log('Erreur dans statuses/update')
+			console.log(handleError(err))
+		}else{
+			console.log('Tweet posté');
+			//console.log(data)
+		}
+	})
+}
