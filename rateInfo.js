@@ -53,6 +53,10 @@ setInterval(function(){
 	})
 }, 120000);
 
+
+/*
+* La fonction crée une nouvelle relation avec l'utilisateur en question 
+*/
 function postFriendshipsCreate(screenName){
 	T.post('friendships/create', {screen_name: screenName}, function(err, data, response){
 		if(err){
@@ -64,6 +68,9 @@ function postFriendshipsCreate(screenName){
 	})
 }
 
+/*
+* La fonction permet de poster un nouveau statut twitter
+*/
 function postStatusesUpdate(parameters){
 	T.post('statuses/update', parameters, function(err, data, response) {
 		if(err){
