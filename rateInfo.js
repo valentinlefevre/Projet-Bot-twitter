@@ -7,7 +7,8 @@ var T = new Twit({
   , access_token_secret:  'L0EvqRCx2kzczdzqMSi5WWy1QfrNHIJRHuNSYRKG4S8Aj'
 });
 
-console.log('Initialisation Bot twitter')
+var i = 0;
+console.log('Initialisation Bot twitter');
 
 setInterval(function(){
 	T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){

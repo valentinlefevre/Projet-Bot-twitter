@@ -44,11 +44,17 @@ function botTwitter (){
 	}
 	
 	this.getStatusesMentionsTimeline = function(){
-		T.get('statuses/mentions_timeline', {count: 2}, function(err, data, response){
+		var parameters = new Array();
+		T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){
+			
 			for(i=0; i<data.length; i++){
 				console.log("Tweet n°"+(i+1));
 				userScreenName = data[i].user.screen_name;
 				contenu = data[i].text;
+				console.log(data[i].id);
+				parameters = {
+					id : data[i].id_str
+				};
 				if(data[i].entities.hashtags.length > 0){
 					contexte = data[i].entities.hashtags[0].text;
 				}else{
@@ -57,7 +63,17 @@ function botTwitter (){
 				console.log(userScreenName+" m'a dit : '"+contenu+"' dans ce contexte : '"+contexte+"'"); 
 			}
 			//console.log(JSON.stringify(data, null, 2))
-			return data;
+		});
+		return parameters;
+	}
+	
+	this.postStatusesRetweet = function(parameters){
+		T.post('statuses/retweet/:id', parameters, function(err, data, response){
+			if(err){
+				console.log(JSON.stringify(err, null, 2));
+			}else{
+				console.log("J'ai retweeté");
+			}
 		});
 	}
 	
