@@ -44,11 +44,23 @@ function botTwitter (){
 	}
 	
 	this.getStatusesMentionsTimeline = function(){
-		T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){
-			console.log(JSON.stringify(data, null, 2))
+		T.get('statuses/mentions_timeline', {count: 2}, function(err, data, response){
+			for(i=0; i<data.length; i++){
+				console.log("Tweet n°"+(i+1));
+				userScreenName = data[i].user.screen_name;
+				contenu = data[i].text;
+				if(data[i].entities.hashtags.length > 0){
+					contexte = data[i].entities.hashtags[0].text;
+				}else{
+					contexte = "";
+				}
+				console.log(userScreenName+" m'a dit : '"+contenu+"' dans ce contexte : '"+contexte+"'"); 
+			}
+			//console.log(JSON.stringify(data, null, 2))
 			return data;
 		});
 	}
+	
 	
 }
 
