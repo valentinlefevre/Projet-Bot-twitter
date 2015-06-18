@@ -3,12 +3,18 @@
 function botTwitter (){
 	
 	this.name = "Chappie";
+	
 	this.consumerKey =         'pnEfCx9oVRVn6SOHWkcH38PGB';
 	this.consumerSecret =      'BGbVoycIcp9M0D0c9pTTL0eXezwktjCdvq1qHBsWvydczHu6hw';
 	this.accessToken =        '2893323477-eHi0UgrJyjzLvAAYvfzrEKSTL7AmIVB8ADfosxM';
 	this.accessTokenSecret =  'L0EvqRCx2kzczdzqMSi5WWy1QfrNHIJRHuNSYRKG4S8Aj';
 	
 	var Twit = require('twit');
+	var _ = require('lodash');
+	var Client = require('node-rest-client').Client;
+	var async = require('async');
+	var wordFilter = require('wordfilter');
+	
 	var T = new Twit({
 		consumer_key: this.consumerKey,
 		consumer_secret: this.consumerSecret,

@@ -7,10 +7,12 @@ var T = new Twit({
   , access_token_secret:  'L0EvqRCx2kzczdzqMSi5WWy1QfrNHIJRHuNSYRKG4S8Aj'
 });
 
-var i = 0;
+var i = 1;
 console.log('Initialisation Bot twitter');
+var idLastTwitAnswered = 0;
 
 setInterval(function(){
+	console.log("Boucle "+1);
 	T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){
 		if(err){
 			console.log('Erreur dans statuses/mentions_timeline')
@@ -21,18 +23,25 @@ setInterval(function(){
 			for(i = 0; i < data.length; i++){
 				
 				var destinataire = data[i].user.screen_name
-				var textMessage = 'Coucou @'+destinataire+' ça gaze?'
+				var textMessage = '@'+destinataire+'Coucou ça gaze?'
 				var inReplyToStatusId = data[i].id
 				var parameters = {
 					status: textMessage,
 					in_reply_to_status_id: inReplyToStatusId
 				}
-				
+				var parametersRetweet = {
+					id: data[i].id_str
+				}
 				console.log('Twit n°'+i)
 				console.log(parameters)
 				
-				postStatusesUpdate(parameters);
-				
+				if(idLastTwitAnswered != data[i].id_str){
+					postStatusesUpdate(parameters);
+					postStatusesRetweet(parametersRetweet);
+				}else{
+					console.log("J'ai déjà répondu à ce twit");
+				}
+				idLastTwitAnswered = data[i].id_str;
 				T.get('friendships/show', {source_screen_name: 'Voilou01', target_screen_name: data[i].user.screen_name}, function(err, data, response){
 					if(err){
 						console.log('Erreur dans friendships/show')
@@ -82,4 +91,14 @@ function postStatusesUpdate(parameters){
 			//console.log(data)
 		}
 	})
+}
+
+function postStatusesRetweet(parameters){
+	T.post('statuses/retweet/:id', parameters, function(err, data, response){
+		if(err){
+			console.log(JSON.stringify(err, null, 2));
+		}else{
+			console.log("J'ai retweeté");
+		}
+	});
 }
