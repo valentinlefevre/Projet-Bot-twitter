@@ -17,22 +17,46 @@ var stream = T.stream('user', {track: userScreenNameTacked});
 stream.on('tweet', function(tweet) {
 	i++;
     console.log('Lecture du twit n°'+i);
-    console.log(JSON.stringify(tweet, null, 2));
-	
+    //console.log(JSON.stringify(tweet, null, 2));
 	if(tweet.text.indexOf(userScreenNameTacked) > 0){
+		postStatusesRetweet({id: tweet.id_str});
 		T.get('friendships/show', {source_screen_name: userScreenNameTacked, target_screen_name: tweet.user.screen_name}, function(err, data, response){
 			if(err){
 				console.log(handleError(err))
 			}else{
-				if(!data.relationship.source.following){
-					console.log(JSON.stringify(data, null, 2))
-					postFriendshipsCreate(data.relationship.source.screen_name);
+				if(userScreenNameTacked != tweet.user.screen_name){
+					if(!data.relationship.source.following){
+						console.log(JSON.stringify(data, null, 2))
+						postFriendshipsCreate(data.relationship.source.screen_name);
+					}else{
+						console.log(JSON.stringify(data, null, 2))
+						console.log('l\'utilisateur '+tweet.user.screen_name+' est déjà dans vos amis')
+					}
 				}else{
-					console.log(JSON.stringify(data, null, 2))
-					console.log('l\'utilisateur '+tweet.user.screen_name+' est déjà dans vos amis')
+					console.log("Tu ne peux pas te suivre toi-même!");
 				}
 			}
 		});
+		
+		if(tweet.entities.hashtags.length > 0){
+			console.log(tweet.entities.hashtags[0].text);
+			T.get('search/tweets', {q: "#"+tweet.entities.hashtags[0].text, count: 1}, function(err, data, response){
+				if(err){
+					console.log(handleError(err));
+				}else{
+					console.log("longueur du texte du status cité : "+data.statuses[0].text.length);
+					//console.log(JSON.stringify(data, null, 2));
+					console.log(data.statuses[0].text);
+					parameters = {
+						status: data.statuses[0].text,
+						in_reply_to_status_id: tweet.id_str
+					}
+					postStatusesUpdate(parameters);
+				}
+			});
+		}else{
+			console.log(tweet.user.screen_name+" n'a défini aucun contexte");
+		}
 	}
 });
 
@@ -103,7 +127,7 @@ function postStatusesUpdate(parameters){
 			console.log(err);
 		}else{
 			console.log('Tweet posté');
-			console.log(data);
+			//console.log(data);
 		}
 	})
 }
