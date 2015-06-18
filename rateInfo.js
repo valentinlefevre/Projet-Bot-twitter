@@ -7,14 +7,33 @@ var T = new Twit({
   , access_token_secret:  'L0EvqRCx2kzczdzqMSi5WWy1QfrNHIJRHuNSYRKG4S8Aj'
 });
 
+userScreenNameTacked = 'Voilou01';
 var i = 0;
 console.log('Initialisation Bot twitter');
 console.log ('Lancement du stream');
-var stream = T.stream('statuses/filter', {track: 'Voilou01'});
+
+var stream = T.stream('user', {track: userScreenNameTacked});
+
 stream.on('tweet', function(tweet) {
 	i++;
     console.log('Lecture du twit n°'+i);
-    console.log(tweet);
+    console.log(JSON.stringify(tweet, null, 2));
+	
+	if(tweet.text.indexOf(userScreenNameTacked) > 0){
+		T.get('friendships/show', {source_screen_name: userScreenNameTacked, target_screen_name: tweet.user.screen_name}, function(err, data, response){
+			if(err){
+				console.log(handleError(err))
+			}else{
+				if(!data.relationship.source.following){
+					console.log(JSON.stringify(data, null, 2))
+					postFriendshipsCreate(data.relationship.source.screen_name);
+				}else{
+					console.log(JSON.stringify(data, null, 2))
+					console.log('l\'utilisateur '+tweet.user.screen_name+' est déjà dans vos amis')
+				}
+			}
+		});
+	}
 });
 
 // setInterval(function(){
@@ -62,31 +81,39 @@ stream.on('tweet', function(tweet) {
 // }, 120000);
 
 
-// /*
-// * La fonction crée une nouvelle relation avec l'utilisateur en question 
-// */
-// function postFriendshipsCreate(screenName){
-	// T.post('friendships/create', {screen_name: screenName}, function(err, data, response){
-		// if(err){
-			// console.log('Erreur dans friendships/create')
-			// console.log(handleError(err))
-		// }else{
-			// console.log(' L\'utilisateur '+screenName+' a été ajouté à vos amis!')
-		// }
-	// })
-// }
+/*
+* La fonction crée une nouvelle relation avec l'utilisateur en question 
+*/
+function postFriendshipsCreate(screenName){
+	T.post('friendships/create', {screen_name: screenName}, function(err, data, response){
+		if(err){
+			console.log(err);
+		}else{
+			console.log(' L\'utilisateur '+screenName+' a été ajouté à vos amis!');
+		}
+	})
+}
 
-// /*
-// * La fonction permet de poster un nouveau statut twitter
-// */
-// function postStatusesUpdate(parameters){
-	// T.post('statuses/update', parameters, function(err, data, response) {
-		// if(err){
-			// console.log('Erreur dans statuses/update')
-			// console.log(handleError(err))
-		// }else{
-			// console.log('Tweet posté');
-			//console.log(data)
-		// }
-	// })
-// }
+/*
+* La fonction permet de poster un nouveau statut twitter
+*/
+function postStatusesUpdate(parameters){
+	T.post('statuses/update', parameters, function(err, data, response) {
+		if(err){
+			console.log(err);
+		}else{
+			console.log('Tweet posté');
+			console.log(data);
+		}
+	})
+}
+
+function postStatusesRetweet(parameters){
+	T.post('statuses/retweet/:id', parameters, function(err, data, response){
+		if(err){
+			console.log(JSON.stringify(err, null, 2));
+		}else{
+			console.log("J'ai retweeté");
+		}
+	});
+}
