@@ -7,24 +7,29 @@ var T = new Twit({
   , access_token_secret:  'L0EvqRCx2kzczdzqMSi5WWy1QfrNHIJRHuNSYRKG4S8Aj'
 });
 
-userScreenNameTacked = 'Voilou01';
+botScreenName = 'Voilou01';
 var i = 0;
 console.log('Initialisation Bot twitter');
 console.log ('Lancement du stream');
+/*
+* Création du stream
+*/
+var stream = T.stream('user', {track: botScreenName});
 
-var stream = T.stream('user', {track: userScreenNameTacked});
-
+/*
+* Lancement du stream, pour chaque tweet reçu dans le stream la fonction effectue le traitement décrit dans le readme
+*/
 stream.on('tweet', function(tweet) {
 	i++;
     console.log('Lecture du twit n°'+i);
     //console.log(JSON.stringify(tweet, null, 2));
-	if(tweet.text.indexOf(userScreenNameTacked) > 0){
+	if(tweet.text.indexOf(botScreenName) > 0){
 		postStatusesRetweet({id: tweet.id_str});
-		T.get('friendships/show', {source_screen_name: userScreenNameTacked, target_screen_name: tweet.user.screen_name}, function(err, data, response){
+		T.get('friendships/show', {source_screen_name: botScreenName, target_screen_name: tweet.user.screen_name}, function(err, data, response){
 			if(err){
 				console.log(handleError(err))
 			}else{
-				if(userScreenNameTacked != tweet.user.screen_name){
+				if(botScreenName != tweet.user.screen_name){
 					if(!data.relationship.source.following){
 						console.log(JSON.stringify(data, null, 2))
 						postFriendshipsCreate(data.relationship.source.screen_name);
@@ -59,51 +64,6 @@ stream.on('tweet', function(tweet) {
 		}
 	}
 });
-
-// setInterval(function(){
-	// T.get('statuses/mentions_timeline', {count: 1}, function(err, data, response){
-		// if(err){
-			// console.log('Erreur dans statuses/mentions_timeline')
-			// console.log(handleError(err))
-		// }else{
-			// var nbTweetInMentionsTimeline = data.length
-			// console.log('Nb tweets dans time line : '+nbTweetInMentionsTimeline)
-			// for(i = 0; i < data.length; i++){
-				
-				// var destinataire = data[i].user.screen_name
-				// var textMessage = 'Coucou @'+destinataire+' ça gaze?'
-				// var inReplyToStatusId = data[i].id
-				// var parameters = {
-					// status: textMessage,
-					// in_reply_to_status_id: inReplyToStatusId
-				// }
-				
-				// console.log('Twit n°'+i)
-				// console.log(parameters)
-				
-				// postStatusesUpdate(parameters);
-				
-				// T.get('friendships/show', {source_screen_name: 'Voilou01', target_screen_name: data[i].user.screen_name}, function(err, data, response){
-					// if(err){
-						// console.log('Erreur dans friendships/show')
-						// console.log(handleError(err))
-					// }else{
-						// if(!data.relationship.source.following){
-							//console.log(JSON.stringify(data, null, 2))
-							// console.log(JSON.stringify(data, null, 2))
-							// postFriendshipsCreate(data[i].user.screen_name);
-						// }else{
-							//console.log(JSON.stringify(data, null, 2))
-							// console.log('l\'utilisateur '+destinataire+' est déjà dans vos amis')
-						// }
-					// }
-				// })
-				
-			// }
-		// }
-	// })
-// }, 120000);
-
 
 /*
 * La fonction crée une nouvelle relation avec l'utilisateur en question 
